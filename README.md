@@ -30,7 +30,7 @@ Usage:
 <ul>
   
 <li> a single image represented by cv::Mat 
-<li> a vector of images 
+<li> a vector of images, where each image is of type cv::Mat 
 <li> a path to a single image or to a directory of images 
   
 <b> Note that the input image/images can only be of type: jpg, .png, .bmp, .tif </b>
@@ -49,7 +49,8 @@ void setPreprocessingParams(const int bilateralDiameter = 10, const int bilatera
 int setAdvancedMode(bool useAdvancedMode = false);  
 ```
 Usage:
-... to be added.
+- With ```setPreprocessingParams(...)``` you set the parameters required for image preprocessing. Note that the default parameters were acquired experimentally. For a more in - depth insight into the role of each parameter, please refer to the [OpenCV 4.0.1 documentation](https://docs.opencv.org/4.0.1/).
+- With ```setAdvancedMode(...)``` you set the *advancedMode*, which gives you all the intermediate results acquired during the preprocessing phase.
 
 <br />  
 
@@ -69,5 +70,15 @@ PreprocessingDurationSignal(PREPROCESSING_DURATIONS);
 
 PreprocessingErrorSignal(int);
 ```  
-
+Few important notes:  
+- If you load an image or an image path
+  - You get ```preprocessingDoneSignal``` with <b>PREPROCESSING_ALL_RESULTS</b> if the *advancedMode* is <b>enabled</b>.  
+  - You get ```preprocessingDoneSignal``` with <b>PREPROCESSING_RESULTS</b> if the *advancedMode* is <b>disabled</b>.
+- If you load a vector of images or an input directory  
+  - You get ```preprocessingSequenceDoneSignal``` with <b>PREPROCESSING_ALL_RESULTS</b> if the *advancedMode* is <b>enabled</b> . 
+  - You get ```preprocessingSequenceDoneSignal``` with <b>PREPROCESSING_RESULTS</b> if *advancedMode* is <b>disabled </b> 
+- You get ```preprocessingDurationSignal``` with duration values in *milliseconds* for each phase during preprocessing if it was finished successfully.
+- You get ```preprocessingErrorSignal``` with the <b>error code</b> if an error occured during preprocessing.
+<br />  
+<br />  
 
