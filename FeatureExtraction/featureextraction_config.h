@@ -23,18 +23,18 @@ typedef struct
     cv::Mat roi;
     cv::Mat roiContrastEnhanced;
 
-}PREPROCESSING_RESULT;
+}EXTRACTION_PREPROCESSING_RESULT;
 
 typedef struct
 {
     bool isSequence;
     bool isLoaded;
-    PREPROCESSING_RESULT singleInput;
-    QMap<QString, PREPROCESSING_RESULT> sequenceInput;
+    EXTRACTION_PREPROCESSING_RESULT singleInput;
+    QMap<QString, EXTRACTION_PREPROCESSING_RESULT> sequenceInput;
     QVector<QString> keys;
     int counter;
 
-}INPUT;
+}FEATURE_EXTRACTION_INPUT;
 
 typedef struct
 {

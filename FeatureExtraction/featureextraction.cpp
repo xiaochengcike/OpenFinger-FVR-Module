@@ -58,7 +58,7 @@ int FeatureExtraction::loadInput(const cv::Mat& original, const cv::Mat& roi, co
     return 1;
 }
 
-int FeatureExtraction::loadInput(const PREPROCESSING_RESULT& preprocessingResult)
+int FeatureExtraction::loadInput(const EXTRACTION_PREPROCESSING_RESULT& preprocessingResult)
 {
     if(this->isRunning)
     {
@@ -82,7 +82,7 @@ int FeatureExtraction::loadInput(const PREPROCESSING_RESULT& preprocessingResult
     return 1;
 }
 
-int FeatureExtraction::loadInput(const QMap<QString, PREPROCESSING_RESULT>& preprocessingResults)
+int FeatureExtraction::loadInput(const QMap<QString, EXTRACTION_PREPROCESSING_RESULT>& preprocessingResults)
 {
     if(this->isRunning)
     {
@@ -154,7 +154,7 @@ void FeatureExtraction::start()
    }
 }
 
-void FeatureExtraction::startExtraction(const PREPROCESSING_RESULT& result)
+void FeatureExtraction::startExtraction(const EXTRACTION_PREPROCESSING_RESULT& result)
 {
     if(this->extractor == SIFT)
     {

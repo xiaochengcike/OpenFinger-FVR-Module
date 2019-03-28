@@ -30,8 +30,8 @@ public:
 
     // API
     int loadInput(const cv::Mat &, const cv::Mat &, const cv::Mat &);
-    int loadInput(const PREPROCESSING_RESULT &);
-    int loadInput(const QMap<QString, PREPROCESSING_RESULT> &);
+    int loadInput(const EXTRACTION_PREPROCESSING_RESULT &);
+    int loadInput(const QMap<QString, EXTRACTION_PREPROCESSING_RESULT> &);
 
     void start();
 
@@ -43,7 +43,7 @@ private:
     cv::Ptr<cv::xfeatures2d::SURF> surf;
 
     // Input
-    INPUT input;
+    FEATURE_EXTRACTION_INPUT input;
 
     // Parameters
     EXTRACTOR extractor;
@@ -59,7 +59,7 @@ private:
     bool isRunning;
 
 private slots:
-    void startExtraction(const PREPROCESSING_RESULT &);
+    void startExtraction(const EXTRACTION_PREPROCESSING_RESULT &);
     void clearInput();
     void clearDurations();
     void clearResults();

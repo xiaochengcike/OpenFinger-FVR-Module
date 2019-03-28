@@ -16,24 +16,46 @@ public:
     void identify(const QVector<cv::Mat> &, const QMultiMap<QString, QVector<cv::Mat>> &);
     void verify(const QVector<cv::Mat> &, const QVector<QVector<cv::Mat>> &);
 
-    void setMode(const MODE &);
-    void setParams(const int normType = cv::NORM_L2, bool crossCheck = false);
+    int setMode(const RECOGNITION_MODE &);
+    int setParams(const int normType = cv::NORM_L2, bool crossCheck = false);
+
+    int setDatabaseParams(const int, const int);
+    void testDatabase(const QMap<QString, QVector<cv::Mat>> &);
 
 private:
     cv::Ptr<cv::BFMatcher> bfMatcher;
     BF_MATCHER_PARAMS matcherParams;
 
-    MODE mode;
+    RECOGNITION_MODE mode;
 
     int threshold;
     std::vector<cv::DMatch> matchedDescriptors;
+
+     QMap<QString, QVector<cv::Mat>> bfMatcherTemplates;
+
+    QVector<FINGER_VEIN_PAIR> fingerveinPairs;
+    QMap<QString, QString> fvAlternativeNames;
+
+    DB_PARAMS databaseTestParams;
+    DB_TEST_RESULTS databaseTestResults;
 
     bool isRunning;
     QTime timer;
     MATCHING_DURATIONS timeDurations;
 
-private slots:
+    void generateFVPairs();
+    void generateGenuineFVPairs();
+    void generateImpostorFVPairs();
+
+    int findEntryWithHighestScore();
+    double computeEER();
+    void computeROC();
+
+    void clearDatabaseTestResults();
+    void clearDatabaseTestParams();
     void clearResult();
+
+private slots:
     void matcherError(const int);
 
 signals:
