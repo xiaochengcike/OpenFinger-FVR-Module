@@ -14,16 +14,38 @@ cv::Mat RoiExtraction::findROI()
 {
     this->findEdgeContours();
     this->findEndpoints();
+    cv::Rect rect = cv::Rect(0, 0, 190, 80);
 
     if(this->endpoints.size() == 4)
     {
         this->findMinMaxXY();
         this->roi = this->original(cv::Range(this->minY, this->maxY),
                                    cv::Range(this->minX, this->maxX));
+
+        if(this->roi.rows < 80 && this->roi.cols < 150)
+        {
+            if(this->original.cols > this->original.rows)
+            {
+                return this->original(cv::Rect(cv::Point(0, this->original.rows - 150), cv::Point(this->original.cols, this->original.rows - 80)));
+            }
+            else
+            {
+                return this->original(cv::Rect(cv::Point(this->original.cols - 150, 0), cv::Point(this->original.cols - 80, this->original.rows)));
+            }
+        }
     }
     else
     {
         this->roi = this->emergencyROI();
+
+        if(this->original.cols > this->original.rows)
+        {
+            return this->original(cv::Rect(cv::Point(0, this->original.rows - 150), cv::Point(this->original.cols, this->original.rows - 80)));
+        }
+        else
+        {
+            return this->original(cv::Rect(cv::Point(this->original.cols - 150, 0), cv::Point(this->original.cols - 80, this->original.rows)));
+        }
     }
 
     return this->roi;
@@ -78,22 +100,22 @@ cv::Mat RoiExtraction::emergencyROI()
             {
                 if(this->endpoints.at(0).y < this->original.rows / 2)
                 {
-                    return this->original(cv::Rect(this->endpoints.at(0), cv::Point(this->original.cols, this->endpoints.at(0).y + 80)));
+                    return this->original(cv::Rect(this->endpoints.at(0), cv::Point(this->original.cols, this->endpoints.at(0).y + 150)));
                 }
                 else
                 {
-                    return this->original(cv::Rect(this->endpoints.at(0), cv::Point(this->original.cols, this->endpoints.at(0).y - 80)));
+                    return this->original(cv::Rect(this->endpoints.at(0), cv::Point(this->original.cols, this->endpoints.at(0).y - 150)));
                 }
             }
             else if(this->endpoints.at(0).y <= 10)
             {
                 if(this->endpoints.at(0).x < this->original.cols / 2)
                 {
-                    return this->original(cv::Rect(this->endpoints.at(0), cv::Point(this->endpoints.at(0).x + 80, this->original.rows)));
+                    return this->original(cv::Rect(this->endpoints.at(0), cv::Point(this->endpoints.at(0).x + 150, this->original.rows)));
                 }
                 else
                 {
-                    return this->original(cv::Rect(this->endpoints.at(0), cv::Point(this->endpoints.at(0).x - 80, this->original.rows)));
+                    return this->original(cv::Rect(this->endpoints.at(0), cv::Point(this->endpoints.at(0).x - 150, this->original.rows)));
                 }
             }
         }
@@ -103,22 +125,22 @@ cv::Mat RoiExtraction::emergencyROI()
             {
                 if(this->endpoints.at(0).y < this->original.rows)
                 {
-                    return this->original(cv::Rect(cv::Point(0, this->endpoints.at(0).y + 80), this->endpoints.at(0)));
+                    return this->original(cv::Rect(cv::Point(0, this->endpoints.at(0).y + 150), this->endpoints.at(0)));
                 }
                 else
                 {
-                    return this->original(cv::Rect(cv::Point(0, this->endpoints.at(0).y - 80), this->endpoints.at(0)));
+                    return this->original(cv::Rect(cv::Point(0, this->endpoints.at(0).y - 150), this->endpoints.at(0)));
                 }
             }
             else if(this->endpoints.at(0).y >= this->cannyOutput.rows - 10)
             {
                 if(this->endpoints.at(0).x < this->original.cols)
                 {
-                    return this->original(cv::Rect(cv::Point(this->endpoints.at(0).x + 80, 0), this->endpoints.at(0)));
+                    return this->original(cv::Rect(cv::Point(this->endpoints.at(0).x + 150, 0), this->endpoints.at(0)));
                 }
                 else
                 {
-                    return this->original(cv::Rect(cv::Point(this->endpoints.at(0).x - 80, 0), this->endpoints.at(0)));
+                    return this->original(cv::Rect(cv::Point(this->endpoints.at(0).x - 150, 0), this->endpoints.at(0)));
                 }
             }
         }

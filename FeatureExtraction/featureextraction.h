@@ -30,8 +30,8 @@ public:
 
     // API
     int loadInput(const cv::Mat &, const cv::Mat &, const cv::Mat &);
-    int loadInput(const EXTRACTION_PREPROCESSING_RESULT &);
-    int loadInput(const QMap<QString, EXTRACTION_PREPROCESSING_RESULT> &);
+    int loadInput(const PREPROCESSED_RESULT &);
+    int loadInput(const QMap<QString, PREPROCESSED_RESULT> &);
 
     void start();
 
@@ -59,7 +59,7 @@ private:
     bool isRunning;
 
 private slots:
-    void startExtraction(const EXTRACTION_PREPROCESSING_RESULT &);
+    void startExtraction(const PREPROCESSED_RESULT &);
     void clearInput();
     void clearDurations();
     void clearResults();

@@ -15,6 +15,7 @@
 #include <opencv4/opencv2/opencv.hpp>
 #include <opencv4/opencv2/xfeatures2d.hpp>
 
+
 enum EXTRACTOR {SIFT, SURF};
 
 typedef struct
@@ -23,14 +24,14 @@ typedef struct
     cv::Mat roi;
     cv::Mat roiContrastEnhanced;
 
-}EXTRACTION_PREPROCESSING_RESULT;
+}PREPROCESSED_RESULT;
 
 typedef struct
 {
     bool isSequence;
     bool isLoaded;
-    EXTRACTION_PREPROCESSING_RESULT singleInput;
-    QMap<QString, EXTRACTION_PREPROCESSING_RESULT> sequenceInput;
+    PREPROCESSED_RESULT singleInput;
+    QMap<QString, PREPROCESSED_RESULT> sequenceInput;
     QVector<QString> keys;
     int counter;
 
@@ -55,5 +56,6 @@ typedef struct
     bool upright;
 
 }SURF_PARAMS;
+
 
 #endif // FEATUREEXTRACTION_CONFIG_H

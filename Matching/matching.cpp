@@ -6,7 +6,9 @@ Matching::Matching(QObject *parent) : QObject(parent)
     this->isRunning = false;
     this->threshold = 45;
     this->matcherParams.normType = cv::NORM_L2;
-    this->matcherParams.crossCheck = false;
+    this->matcherParams.crossCheck = true;
+
+    this->bfMatcher = cv::BFMatcher::create(this->matcherParams.normType, this->matcherParams.crossCheck);
 
     this->databaseTestParams.imgsPerSubject = 0;
     this->databaseTestParams.numOfSubjects = 0;
@@ -93,7 +95,7 @@ int Matching::setDatabaseParams(const int numOfSubjects, const int imgsPerSubjec
 
 void Matching::testDatabase(const QMap<QString, QVector<cv::Mat>>& database)
 {
-    if (this->isRunning)
+    /*if (this->isRunning)
     {
         this->matcherError(10);
         return;
@@ -110,10 +112,39 @@ void Matching::testDatabase(const QMap<QString, QVector<cv::Mat>>& database)
     }
 
     this->generateGenuineFVPairs();
-    this->generateImpostorFVPairs();
+    this->generateImpostorFVPairs();*/
 
     // TODO:
     // this->match();
+}
+
+void Matching::loadInput(const QMap<QString, QPair<std::vector<int>, cv::Mat>>& input)
+{
+    for(int i = 1; i <= input.keys().size(); ++i)
+    {
+        if(i % 2 == 1)
+        {
+            this->bfMatcherTemplates[i-1].first = input.values().at(i - 1).second;
+        }
+        else
+        {
+            this->bfMatcherTemplates[i].second = input.values().at(i).second;
+        }
+    }
+}
+
+void Matching::match()
+{
+    for(int i = 0; this->bfMatcherTemplates.size(); ++i)
+    {
+        std::vector<cv::DMatch> matches;
+        this->bfMatcher->match(this->bfMatcherTemplates[i].first, this->bfMatcherTemplates[i].second, matches);
+        this->matchedDescriptors.insert(matches.size(), matches);
+    }
+
+    emit matchingDone(this->matchedDescriptors);
+
+    this->clearResult();
 }
 
 void Matching::generateFVPairs()
@@ -130,31 +161,14 @@ void Matching::generateGenuineFVPairs()
 {
     this->databaseTestParams.fvrGenuinePairs.clear();
 
-    for (int subject = 0; subject < this->databaseTestParams.numOfSubjects; ++subject)
-    {
-        for(int image1 = subject * this->databaseTestParams.imgsPerSubject; image1 < subject * this->databaseTestParams.imgsPerSubject + this->databaseTestParams.imgsPerSubject; ++image1)
-        {
-            for(int image2 = image1 + 1; image2 < subject * this->databaseTestParams.imgsPerSubject + this->databaseTestParams.imgsPerSubject; ++image2)
-            {
 
-                this->databaseTestParams.fvrGenuinePairs.push_back(FINGER_VEIN_PAIR{this->databaseTestParams.keys.at(image1), this->databaseTestParams.keys.at(image2), 0});
-
-            }
-        }
-    }
 }
 
 void Matching::generateImpostorFVPairs()
 {
     this->databaseTestParams.fvrImpostorPairs.clear();
 
-    for (int image1 = 0; image1 < (this->databaseTestParams.numOfSubjects - 1) * this->databaseTestParams.imgsPerSubject; image1 += this->databaseTestParams.imgsPerSubject)
-    {
-        for (int image2 = image1 + this->databaseTestParams.imgsPerSubject; image2 < this->databaseTestParams.numOfSubjects * this->databaseTestParams.imgsPerSubject; image2 += this->databaseTestParams.imgsPerSubject)
-        {
-            this->databaseTestParams.fvrImpostorPairs.push_back(FINGER_VEIN_PAIR{this->databaseTestParams.keys.at(image1), this->databaseTestParams.keys.at(image2), 0});
-        }
-    }
+
 }
 
 int Matching::findEntryWithHighestScore()

@@ -6,6 +6,7 @@
 #include <QVector>
 #include <QString>
 #include <QMultiMap>
+#include <QMap>
 #include <QTime>
 
 // OpenCV

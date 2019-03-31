@@ -9,13 +9,13 @@ FeatureExtraction::FeatureExtraction(QObject *parent)
     this->input.isSequence = false;
     this->input.counter = 0;
 
-    this->extractor = SIFT;
+    this->extractor = SURF;
 
-    this->siftParams.numberOfFeatures = 45;
+    this->siftParams.numberOfFeatures = 50;
     this->siftParams.numberOfOctaveLayers = 3;
-    this->siftParams.contrastThreshold = 0.01;
-    this->siftParams.edgeThreshold = 5;
-    this->siftParams.sigma = 1.6;
+    this->siftParams.contrastThreshold = 0.009;
+    this->siftParams.edgeThreshold = 4;
+    this->siftParams.sigma = 2;
 
     this->surfParams.hessianThreshold = 170;
     this->surfParams.numberOfOctaves = 4;
@@ -58,7 +58,7 @@ int FeatureExtraction::loadInput(const cv::Mat& original, const cv::Mat& roi, co
     return 1;
 }
 
-int FeatureExtraction::loadInput(const EXTRACTION_PREPROCESSING_RESULT& preprocessingResult)
+int FeatureExtraction::loadInput(const PREPROCESSED_RESULT& preprocessingResult)
 {
     if(this->isRunning)
     {
@@ -82,7 +82,7 @@ int FeatureExtraction::loadInput(const EXTRACTION_PREPROCESSING_RESULT& preproce
     return 1;
 }
 
-int FeatureExtraction::loadInput(const QMap<QString, EXTRACTION_PREPROCESSING_RESULT>& preprocessingResults)
+int FeatureExtraction::loadInput(const QMap<QString, PREPROCESSED_RESULT>& preprocessingResults)
 {
     if(this->isRunning)
     {
@@ -154,12 +154,12 @@ void FeatureExtraction::start()
    }
 }
 
-void FeatureExtraction::startExtraction(const EXTRACTION_PREPROCESSING_RESULT& result)
+void FeatureExtraction::startExtraction(const PREPROCESSED_RESULT& result)
 {
     if(this->extractor == SIFT)
     {
         this->timer.start();
-        this->sift->detect(this->input.singleInput.roiContrastEnhanced, this->results.keypoints);
+        this->sift->detect(result.roiContrastEnhanced, this->results.keypoints);
         this->timeDurations.siftDetection += this->timer.elapsed();
 
         this->timer.start();
@@ -198,6 +198,7 @@ void FeatureExtraction::startExtraction(const EXTRACTION_PREPROCESSING_RESULT& r
             emit extractionSequenceDoneSignal(this->resultsMap);
 
             this->clearSequenceResults();
+            this->clearInput();
         }
         else
         {

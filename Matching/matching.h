@@ -22,6 +22,8 @@ public:
     int setDatabaseParams(const int, const int);
     void testDatabase(const QMap<QString, QVector<cv::Mat>> &);
 
+    void loadInput(const QMap<QString, QPair<std::vector<int>, cv::Mat>>&);
+
 private:
     cv::Ptr<cv::BFMatcher> bfMatcher;
     BF_MATCHER_PARAMS matcherParams;
@@ -29,9 +31,9 @@ private:
     RECOGNITION_MODE mode;
 
     int threshold;
-    std::vector<cv::DMatch> matchedDescriptors;
+    QMultiMap<int, std::vector<cv::DMatch>> matchedDescriptors;
 
-     QMap<QString, QVector<cv::Mat>> bfMatcherTemplates;
+    QVector<QPair<cv::Mat, cv::Mat>> bfMatcherTemplates;
 
     QVector<FINGER_VEIN_PAIR> fingerveinPairs;
     QMap<QString, QString> fvAlternativeNames;
@@ -46,6 +48,7 @@ private:
     void generateFVPairs();
     void generateGenuineFVPairs();
     void generateImpostorFVPairs();
+    void match();
 
     int findEntryWithHighestScore();
     double computeEER();
@@ -61,6 +64,7 @@ private slots:
 signals:
     void identificationDoneSignal(bool, QString, double);
     void verificationDoneSignal(bool);
+    void matchingDone(QMultiMap<int, std::vector<cv::DMatch>>);
 
     void matcherProgressSignal(int);
     void matcherDuration(MATCHING_DURATIONS);
