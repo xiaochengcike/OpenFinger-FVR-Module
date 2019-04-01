@@ -9,7 +9,7 @@ FeatureExtraction::FeatureExtraction(QObject *parent)
     this->input.isSequence = false;
     this->input.counter = 0;
 
-    this->extractor = SURF;
+    this->extractor = SIFT;
 
     this->siftParams.numberOfFeatures = 50;
     this->siftParams.numberOfOctaveLayers = 3;

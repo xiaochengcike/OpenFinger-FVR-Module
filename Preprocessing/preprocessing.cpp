@@ -51,8 +51,8 @@ void Preprocessing::start()
 
             if(this->input.mode == IMAGE || this->input.mode == IMAGE_PATH)
             {
-                this->allResults.original = this->input.image;
-                this->startPreprocessing(this->allResults.original);
+                this->allResults.original = this->input.image.clone();
+                this->startPreprocessing(this->allResults.original.clone());
             }
             else if(!this->input.images.isEmpty())
             {
@@ -84,7 +84,7 @@ void Preprocessing::startPreprocessing(const cv::Mat& image)
     this->bilateralFilter.setParams(this->bilateralFilterParams);
     this->bilateralFilter.setOriginal(this->allResults.cropped);
     this->timer.start();
-    this->allResults.bilateralApplied = this->bilateralFilter.applyFilter();
+    this->allResults.bilateralApplied = this->bilateralFilter.applyFilter().clone();
     this->timeDurations.bilateralFilterApplication += this->timer.elapsed();
 
     // Edge processing
@@ -93,7 +93,7 @@ void Preprocessing::startPreprocessing(const cv::Mat& image)
 
     // 1. Canny
     this->timer.start();
-    this->allResults.cannyOutput = this->edgeProcessing.cannyEdgeDetection();
+    this->allResults.cannyOutput = this->edgeProcessing.cannyEdgeDetection().clone();
     this->timeDurations.cannyEdgeDetection += this->timer.elapsed();
 
     // 2. Contour detection
@@ -102,12 +102,12 @@ void Preprocessing::startPreprocessing(const cv::Mat& image)
     this->timeDurations.contourDetection = this->timer.elapsed();
 
     // ROI Extraction
-    this->roiExtraction.setOriginal(this->allResults.cropped);
-    this->roiExtraction.setCannyOutput(this->allResults.cannyOutput);
+    this->roiExtraction.setOriginal(this->allResults.cropped.clone());
+    this->roiExtraction.setCannyOutput(this->allResults.cannyOutput.clone());
     this->roiExtraction.setContours(this->allResults.contours);
 
     this->timer.start();
-    this->allResults.roi = this->roiExtraction.findROI();
+    this->allResults.roi = this->roiExtraction.findROI().clone();
     this->timeDurations.roiExtraction += this->timer.elapsed();
     this->allResults.endpoints = this->roiExtraction.getEndpoints();
 

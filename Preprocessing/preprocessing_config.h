@@ -3,6 +3,7 @@
 
 // Qt
 #include <QObject>
+#include <QDebug>
 #include <QVector>
 #include <QMap>
 #include <QTime>

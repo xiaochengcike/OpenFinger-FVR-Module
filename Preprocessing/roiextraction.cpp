@@ -14,37 +14,74 @@ cv::Mat RoiExtraction::findROI()
 {
     this->findEdgeContours();
     this->findEndpoints();
-    cv::Rect rect = cv::Rect(0, 0, 190, 80);
 
     if(this->endpoints.size() == 4)
     {
         this->findMinMaxXY();
-        this->roi = this->original(cv::Range(this->minY, this->maxY),
-                                   cv::Range(this->minX, this->maxX));
-
-        if(this->roi.rows < 80 && this->roi.cols < 150)
+        try
         {
+            if(this->original.rows >= this->maxY && this->original.cols >= this->maxX)
+            {
+                this->roi = this->original(cv::Range(this->minY, this->maxY),
+                                       cv::Range(this->minX, this->maxX));
+            }
+
+            if(this->roi.rows < 40 || this->roi.cols < 100)
+            {
+                if(this->original.cols > this->original.rows)
+                {
+                    return this->original(cv::Rect(cv::Point(0, this->original.rows - 150), cv::Point(this->original.cols, this->original.rows - 50)));
+                }
+                else
+                {
+                    return this->original(cv::Rect(cv::Point(this->original.cols - 150, 0), cv::Point(this->original.cols - 50, this->original.rows)));
+                }
+            }
+        }
+        catch(cv::Exception e)
+        {
+            qDebug() << e.what();
+
             if(this->original.cols > this->original.rows)
             {
-                return this->original(cv::Rect(cv::Point(0, this->original.rows - 150), cv::Point(this->original.cols, this->original.rows - 80)));
+                return this->original(cv::Rect(cv::Point(0, this->original.rows - 150), cv::Point(this->original.cols, this->original.rows - 50)));
             }
             else
             {
-                return this->original(cv::Rect(cv::Point(this->original.cols - 150, 0), cv::Point(this->original.cols - 80, this->original.rows)));
+                return this->original(cv::Rect(cv::Point(this->original.cols - 150, 0), cv::Point(this->original.cols - 50, this->original.rows)));
             }
         }
     }
     else
     {
-        this->roi = this->emergencyROI();
+        try
+        {
+            this->roi = this->emergencyROI().clone();
 
-        if(this->original.cols > this->original.rows)
-        {
-            return this->original(cv::Rect(cv::Point(0, this->original.rows - 150), cv::Point(this->original.cols, this->original.rows - 80)));
+            if(this->roi.rows < 40 || this->roi.cols < 100)
+            {
+                if(this->original.cols > this->original.rows)
+                {
+                    return this->original(cv::Rect(cv::Point(0, this->original.rows - 150), cv::Point(this->original.cols, this->original.rows - 50)));
+                }
+                else
+                {
+                    return this->original(cv::Rect(cv::Point(this->original.cols - 150, 0), cv::Point(this->original.cols - 50, this->original.rows)));
+                }
+            }
         }
-        else
+        catch(cv::Exception e)
         {
-            return this->original(cv::Rect(cv::Point(this->original.cols - 150, 0), cv::Point(this->original.cols - 80, this->original.rows)));
+            qDebug() << e.what();
+
+            if(this->original.cols > this->original.rows)
+            {
+                return this->original(cv::Rect(cv::Point(0, this->original.rows - 150), cv::Point(this->original.cols, this->original.rows - 50)));
+            }
+            else
+            {
+                return this->original(cv::Rect(cv::Point(this->original.cols - 150, 0), cv::Point(this->original.cols - 50, this->original.rows)));
+            }
         }
     }
 
