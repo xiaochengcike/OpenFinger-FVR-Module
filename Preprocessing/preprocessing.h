@@ -7,6 +7,9 @@
 #include "edgeprocessing.h"
 #include "roiextraction.h"
 
+namespace fvr
+{
+
 typedef struct
 {
     cv::Mat original;
@@ -106,5 +109,7 @@ signals:
 
     void PreprocessingErrorSignal(int);
 };
+
+}
 
 #endif // PREPROCESSING_H

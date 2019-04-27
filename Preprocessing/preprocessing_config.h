@@ -22,6 +22,9 @@
 // OpenCV
 #include "opencv4/opencv2/opencv.hpp"
 
+namespace fvr
+{
+
 enum INPUT_MODE { IMAGE, IMAGES, IMAGE_PATH, IMAGE_DIR };
 
 typedef struct
@@ -60,5 +63,6 @@ typedef struct
 
 }INPUT;
 
+}
 
 #endif // PREPROCESSING_CONFIG_H

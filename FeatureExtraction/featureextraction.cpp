@@ -1,5 +1,7 @@
 #include "featureextraction.h"
 
+namespace fvr
+{
 
 FeatureExtraction::FeatureExtraction(QObject *parent)
 {
@@ -11,7 +13,7 @@ FeatureExtraction::FeatureExtraction(QObject *parent)
 
     this->extractor = SIFT;
 
-    this->siftParams.numberOfFeatures = 50;
+    this->siftParams.numberOfFeatures = 20;
     this->siftParams.numberOfOctaveLayers = 3;
     this->siftParams.contrastThreshold = 0.009;
     this->siftParams.edgeThreshold = 4;
@@ -265,4 +267,6 @@ void FeatureExtraction::clearSequenceResults()
 void FeatureExtraction::extractionError(const int errorCode)
 {
     emit extractionErrorSignal(errorCode);
+}
+
 }

@@ -4,6 +4,9 @@
 #include "featureextraction_global.h"
 #include "featureextraction_config.h"
 
+namespace fvr
+{
+
 typedef struct
 {
     int siftDetection;
@@ -78,5 +81,7 @@ signals:
 
     void extractionErrorSignal(int);
 };
+
+}
 
 #endif // FEATUREEXTRACTION_H

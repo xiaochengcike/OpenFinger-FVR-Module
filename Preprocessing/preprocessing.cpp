@@ -2,6 +2,8 @@
 
 #include <QDebug>
 
+namespace fvr
+{
 
 Preprocessing::Preprocessing(QObject *parent) : QObject(parent)
 {
@@ -382,4 +384,6 @@ void Preprocessing::preprocessingError(const int errorCode)
 void Preprocessing::errorCaught(const int errorCode)
 {
     std::cout << "Error occurred! Error code: " << errorCode << "\n";
+}
+
 }

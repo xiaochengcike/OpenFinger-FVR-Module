@@ -1,5 +1,8 @@
 #include "roiextraction.h"
 
+namespace fvr
+{
+
 RoiExtraction::RoiExtraction(QObject *parent) : QObject(parent)
 {
 
@@ -40,8 +43,6 @@ cv::Mat RoiExtraction::findROI()
         }
         catch(cv::Exception e)
         {
-            qDebug() << e.what();
-
             if(this->original.cols > this->original.rows)
             {
                 return this->original(cv::Rect(cv::Point(0, this->original.rows - 150), cv::Point(this->original.cols, this->original.rows - 50)));
@@ -56,7 +57,7 @@ cv::Mat RoiExtraction::findROI()
     {
         try
         {
-            this->roi = this->emergencyROI().clone();
+            this->roi = this->emergencyROI();
 
             if(this->roi.rows < 40 || this->roi.cols < 100)
             {
@@ -72,8 +73,6 @@ cv::Mat RoiExtraction::findROI()
         }
         catch(cv::Exception e)
         {
-            qDebug() << e.what();
-
             if(this->original.cols > this->original.rows)
             {
                 return this->original(cv::Rect(cv::Point(0, this->original.rows - 150), cv::Point(this->original.cols, this->original.rows - 50)));
@@ -540,4 +539,4 @@ std::vector<cv::Point> RoiExtraction::getEndpoints() const
     return this->endpoints;
 }
 
-
+}

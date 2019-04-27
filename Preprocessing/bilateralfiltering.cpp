@@ -1,5 +1,8 @@
 #include "bilateralfiltering.h"
 
+namespace fvr
+{
+
 BilateralFiltering::BilateralFiltering(QObject *parent) : QObject(parent)
 {
     this->params.diameter = 10;
@@ -94,4 +97,6 @@ void BilateralFiltering::setParams(const BILATERAL_FILTER_PARAMS params)
     this->params.sigmaSpace = params.sigmaSpace;
     this->params.borderType = cv::BORDER_DEFAULT;
     this->params.numOfTimesApplied = params.numOfTimesApplied;
+}
+
 }

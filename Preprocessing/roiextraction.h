@@ -3,6 +3,9 @@
 
 #include "preprocessing_config.h"
 
+namespace fvr
+{
+
 class RoiExtraction : public QObject
 {
     Q_OBJECT
@@ -45,5 +48,7 @@ private:
     void clearResults();
     void roiExtractionError(const int);
 };
+
+}
 
 #endif // ROIEXTRACTION_H

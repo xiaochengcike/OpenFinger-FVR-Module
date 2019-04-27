@@ -1,260 +1,100 @@
  #include "matching.h"
 
+namespace fvr
+{
 
 Matching::Matching(QObject *parent) : QObject(parent)
 {
-    this->isRunning = false;
-    this->threshold = 45;
-    this->matcherParams.normType = cv::NORM_L2;
-    this->matcherParams.crossCheck = true;
+    this->matcherType = BRUTEFORCE;
+    this->bfMatcherParams.crossCheck = true;
+    this->bfMatcherParams.normType = cv::NORM_L2;
+    this->bfMatcher = cv::BFMatcher::create(this->bfMatcherParams.normType, this->bfMatcherParams.crossCheck);
 
-    this->bfMatcher = cv::BFMatcher::create(this->matcherParams.normType, this->matcherParams.crossCheck);
-
-    this->databaseTestParams.imgsPerSubject = 0;
-    this->databaseTestParams.numOfSubjects = 0;
-    this->databaseTestResults.fvrPlotParams = {0, 100, 1};
-
-    this->clearResult();
+    this->inputDescriptors.inputLoaded = false;
 }
 
 Matching::~Matching()
 {
-
+    this->bfMatcher.release();
+    this->flannMatcher.release();
 }
 
-void Matching::identify(const QVector<cv::Mat>& subject, const QMultiMap<QString, QVector<cv::Mat>>& database)
+void Matching::start()
 {
-    if (this->isRunning)
+    if(this->inputDescriptors.inputLoaded)
     {
-        // Matching already underway
-        this->matcherError(10);
-        return;
-    }
-
-    this->isRunning = true;
-    this->mode = IDENTIFICATION;
-    this->bfMatcher = cv::BFMatcher::create(this->matcherParams.normType, this->matcherParams.crossCheck);
-
-
-
-
-}
-
-void Matching::verify(const QVector<cv::Mat>& subject, const QVector<QVector<cv::Mat>>& database)
-{
-    if (this->isRunning)
-    {
-        // Matching already underway
-        this->matcherError(10);
-        return;
-    }
-
-    this->isRunning = true;
-    this->mode = VERIFICATION;
-    this->bfMatcher = cv::BFMatcher::create(this->matcherParams.normType, this->matcherParams.crossCheck);
-
-}
-
-int Matching::setMode(const RECOGNITION_MODE &value)
-{
-    if (this->isRunning)
-    {
-        // Matching already underway
-        this->matcherError(10);
-        return -1;
-    }
-
-    this->mode = value;
-}
-
-int Matching::setParams(const int normType, bool crossCheck)
-{
-    if (this->isRunning)
-    {
-        // Matching already underway
-        this->matcherError(10);
-        return -1;
-    }
-
-    this->matcherParams.normType = normType;
-    this->matcherParams.crossCheck = crossCheck;
-}
-
-int Matching::setDatabaseParams(const int numOfSubjects, const int imgsPerSubject)
-{
-    if (this->isRunning)
-    {
-        // Matching already underway
-        this->matcherError(10);
-        return -1;
-    }
-
-    this->databaseTestParams.numOfSubjects = numOfSubjects;
-    this->databaseTestParams.imgsPerSubject = imgsPerSubject;
-}
-
-void Matching::testDatabase(const QMap<QString, QVector<cv::Mat>>& database)
-{
-    /*if (this->isRunning)
-    {
-        this->matcherError(10);
-        return;
-    }
-
-    this->isRunning = true;
-
-    this->bfMatcherTemplates.clear();
-
-    for (auto i = database.begin(); i != database.end(); ++i)
-    {
-        this->databaseTestParams.keys.push_back(i.key());
-        this->bfMatcherTemplates.insert(i.key(), i.value());
-    }
-
-    this->generateGenuineFVPairs();
-    this->generateImpostorFVPairs();*/
-
-    // TODO:
-    // this->match();
-}
-
-void Matching::loadInput(const QMap<QString, QPair<std::vector<int>, cv::Mat>>& input)
-{
-    for(int i = 1; i <= input.keys().size(); ++i)
-    {
-        if(i % 2 == 1)
+        if(this->matcherType == BRUTEFORCE)
         {
-            this->bfMatcherTemplates[i-1].first = input.values().at(i - 1).second;
+            this->matchBruteForce();
         }
-        else
+        else if(this->matcherType == FLANN)
         {
-            this->bfMatcherTemplates[i].second = input.values().at(i).second;
+            this->flannMatcher = cv::FlannBasedMatcher::create();
+            this->matchFlannBased();
         }
-    }
-}
 
-void Matching::match()
-{
-    for(int i = 0; this->bfMatcherTemplates.size(); ++i)
+        this->clearInput();
+        this->clearResults();
+    }
+    else
     {
-        std::vector<cv::DMatch> matches;
-        this->bfMatcher->match(this->bfMatcherTemplates[i].first, this->bfMatcherTemplates[i].second, matches);
-        this->matchedDescriptors.insert(matches.size(), matches);
-    }
-
-    emit matchingDone(this->matchedDescriptors);
-
-    this->clearResult();
-}
-
-void Matching::generateFVPairs()
-{
-    this->fingerveinPairs.clear();
-
-    for (auto i = this->fvAlternativeNames.begin(); i != this->fvAlternativeNames.end(); ++i)
-    {
-        this->fingerveinPairs.push_back(FINGER_VEIN_PAIR{"Subject", i.key(), 0});
+        this->matcherError(400);
     }
 }
 
-void Matching::generateGenuineFVPairs()
+int Matching::loadInput(const cv::Mat& descriptors1, const cv::Mat& descriptors2)
 {
-    this->databaseTestParams.fvrGenuinePairs.clear();
-
-
+    this->inputDescriptors.descriptors1 = descriptors1;
+    this->inputDescriptors.descriptors2 = descriptors2;
+    this->inputDescriptors.inputLoaded = true;
 }
 
-void Matching::generateImpostorFVPairs()
+int Matching::setMatcher(const MATCHER_TYPE type)
 {
-    this->databaseTestParams.fvrImpostorPairs.clear();
-
-
+    this->matcherType = type;
 }
 
-int Matching::findEntryWithHighestScore()
+int Matching::setBFMatcherParams(const bool crossCheck, const int normType)
 {
-    int index = 0;
-    double maxScore = this->fingerveinPairs.at(0).score;
-
-    for(int i = 0; i < this->fingerveinPairs.size(); ++i)
-    {
-        if(this->fingerveinPairs.at(i).score > maxScore)
-        {
-            maxScore = this->fingerveinPairs.at(i).score;
-            index = i;
-        }
-    }
-
-    return index;
+    this->bfMatcherParams.crossCheck = crossCheck;
+    this->bfMatcherParams.normType = normType;
 }
 
-double Matching::computeEER()
+void Matching::matchBruteForce()
 {
-    QVector<double> absDiff;
+    this->bfMatcher->match(this->inputDescriptors.descriptors1, this->inputDescriptors.descriptors2, this->matches);
 
-    for(int i=0; i < this->databaseTestResults.farY.size(); ++i)
-    {
-        absDiff.push_back(qAbs(this->databaseTestResults.farY.at(i) - this->databaseTestResults.frrY.at(i)));
-    }
-
-    double smallestDiff = *std::min_element(absDiff.begin(), absDiff.end());
-
-    for(int i=0; i < absDiff.size(); ++i)
-    {
-        if(absDiff.at(i) == smallestDiff)
-        {
-            return (this->databaseTestResults.farY.at(i) + this->databaseTestResults.frrY.at(i)) / 2.0;
-        }
-    }
-
-    return 0;
+    emit this->matchingDoneSignal(this->matches);
 }
 
-void Matching::computeROC()
+void Matching::matchFlannBased()
 {
-    for(int i = 0; i < this->databaseTestResults.frrY.size(); ++i)
-    {
-        this->databaseTestResults.rocY.push_back(1 - this->databaseTestResults.frrY.at(i) / 100.0);
-    }
+    this->flannMatcher->match(this->inputDescriptors.descriptors1, this->inputDescriptors.descriptors2, this->matches);
 
-    for(int i = 0; i < this->databaseTestResults.farY.size(); ++i)
-    {
-        this->databaseTestResults.rocX.push_back(this->databaseTestResults.farY.at(i) / 100.0);
-    }
+    emit this->matchingDoneSignal(this->matches);
 }
 
-void Matching::clearDatabaseTestResults()
+void Matching::resetBFMatcherParams()
 {
-    this->databaseTestResults.eer = -1;
-    this->databaseTestResults.farX.clear();
-    this->databaseTestResults.farY.clear();
-    this->databaseTestResults.frrX.clear();
-    this->databaseTestResults.frrY.clear();
-    this->databaseTestResults.rocX.clear();
-    this->databaseTestResults.rocY.clear();
-    this->databaseTestResults.fvrPlotParams.max = 0;
-    this->databaseTestResults.fvrPlotParams.min = 0;
-    this->databaseTestResults.fvrPlotParams.sensitivity = 0;
+    this->bfMatcherParams.normType = cv::NORM_L2;
+    this->bfMatcherParams.crossCheck = true;
 }
 
-void Matching::clearDatabaseTestParams()
+void Matching::clearResults()
 {
-    this->databaseTestParams.database.clear();
-    this->databaseTestParams.fvrGenuinePairs.clear();
-    this->databaseTestParams.fvrImpostorPairs.clear();
-    this->databaseTestParams.keys.clear();
-    this->databaseTestParams.imgsPerSubject = 0;
-    this->databaseTestParams.numOfSubjects = 0;
+    this->matches.clear();
 }
 
-void Matching::clearResult()
+void Matching::clearInput()
 {
-    this->matchedDescriptors.clear();
-    this->timeDurations.identificationDuration = 0;
-    this->timeDurations.verificationDuration = 0;
+    this->inputDescriptors.descriptors1.release();
+    this->inputDescriptors.descriptors2.release();
+    this->inputDescriptors.inputLoaded = false;
 }
 
 void Matching::matcherError(const int errorCode)
 {
     emit matcherErrorSignal(errorCode);
+}
+
 }

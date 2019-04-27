@@ -1,5 +1,8 @@
 #include "edgeprocessing.h"
 
+namespace fvr
+{
+
 EdgeProcessing::EdgeProcessing(QObject *parent) : QObject(parent)
 {
     this->cannyParams.t1 = 0;
@@ -72,3 +75,4 @@ void EdgeProcessing::clearResults()
     this->contours.clear();
 }
 
+}

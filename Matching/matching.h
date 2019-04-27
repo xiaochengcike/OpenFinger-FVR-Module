@@ -4,6 +4,9 @@
 #include "matching_global.h"
 #include "matching_config.h"
 
+namespace fvr
+{
+
 class MATCHINGSHARED_EXPORT Matching : public QObject
 {
     Q_OBJECT
@@ -13,62 +16,37 @@ public:
     ~Matching();
 
     // API
-    void identify(const QVector<cv::Mat> &, const QMultiMap<QString, QVector<cv::Mat>> &);
-    void verify(const QVector<cv::Mat> &, const QVector<QVector<cv::Mat>> &);
+    void start();
 
-    int setMode(const RECOGNITION_MODE &);
-    int setParams(const int normType = cv::NORM_L2, bool crossCheck = false);
-
-    int setDatabaseParams(const int, const int);
-    void testDatabase(const QMap<QString, QVector<cv::Mat>> &);
-
-    void loadInput(const QMap<QString, QPair<std::vector<int>, cv::Mat>>&);
+    int loadInput(const cv::Mat &, const cv::Mat &);
+    int setMatcher(const MATCHER_TYPE type = BRUTEFORCE);
+    int setBFMatcherParams(const bool crossCheck = true, const int normType = cv::NORM_L2);
 
 private:
     cv::Ptr<cv::BFMatcher> bfMatcher;
-    BF_MATCHER_PARAMS matcherParams;
+    cv::Ptr<cv::FlannBasedMatcher> flannMatcher;
 
-    RECOGNITION_MODE mode;
+    INPUT inputDescriptors;
 
-    int threshold;
-    QMultiMap<int, std::vector<cv::DMatch>> matchedDescriptors;
+    MATCHER_TYPE matcherType;
+    MATCHER_PARAMS bfMatcherParams;
 
-    QVector<QPair<cv::Mat, cv::Mat>> bfMatcherTemplates;
-
-    QVector<FINGER_VEIN_PAIR> fingerveinPairs;
-    QMap<QString, QString> fvAlternativeNames;
-
-    DB_PARAMS databaseTestParams;
-    DB_TEST_RESULTS databaseTestResults;
-
-    bool isRunning;
-    QTime timer;
-    MATCHING_DURATIONS timeDurations;
-
-    void generateFVPairs();
-    void generateGenuineFVPairs();
-    void generateImpostorFVPairs();
-    void match();
-
-    int findEntryWithHighestScore();
-    double computeEER();
-    void computeROC();
-
-    void clearDatabaseTestResults();
-    void clearDatabaseTestParams();
-    void clearResult();
+    std::vector<cv::DMatch> matches;
 
 private slots:
+    void matchBruteForce();
+    void matchFlannBased();
+    void resetBFMatcherParams();
+    void clearResults();
+    void clearInput();
     void matcherError(const int);
 
 signals:
-    void identificationDoneSignal(bool, QString, double);
-    void verificationDoneSignal(bool);
-    void matchingDone(QMultiMap<int, std::vector<cv::DMatch>>);
-
-    void matcherProgressSignal(int);
-    void matcherDuration(MATCHING_DURATIONS);
+    void matchingDoneSignal(std::vector<cv::DMatch>);
     void matcherErrorSignal(int);
+
 };
+
+}
 
 #endif // MATCHING_H

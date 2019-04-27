@@ -3,6 +3,9 @@
 
 #include "preprocessing_config.h"
 
+namespace fvr
+{
+
 class BilateralFiltering : public QObject
 {
     Q_OBJECT
@@ -30,5 +33,7 @@ private:
     void clearParams();
     void clearResults();
 };
+
+}
 
 #endif // BILATERALFILTERING_H

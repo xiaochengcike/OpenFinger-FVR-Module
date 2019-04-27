@@ -3,6 +3,9 @@
 
 #include "preprocessing_config.h"
 
+namespace fvr
+{
+
 class EdgeProcessing : public QObject
 {
     Q_OBJECT
@@ -31,5 +34,7 @@ private:
     void clearParams();
     void clearResults();
 };
+
+}
 
 #endif // EDGEPROCESSING_H

@@ -15,6 +15,8 @@
 #include <opencv4/opencv2/opencv.hpp>
 #include <opencv4/opencv2/xfeatures2d.hpp>
 
+namespace fvr
+{
 
 enum EXTRACTOR {SIFT, SURF};
 
@@ -57,5 +59,6 @@ typedef struct
 
 }SURF_PARAMS;
 
+}
 
 #endif // FEATUREEXTRACTION_CONFIG_H
