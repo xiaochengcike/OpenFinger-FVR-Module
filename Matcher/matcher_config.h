@@ -1,5 +1,5 @@
-#ifndef MATCHING_CONFIG_H
-#define MATCHING_CONFIG_H
+#ifndef MATCHER_CONFIG_H
+#define MATCHER_CONFIG_H
 
 // Qt
 #include <QObject>
@@ -12,6 +12,9 @@
 // OpenCV
 #include <opencv4/opencv2/opencv.hpp>
 #include <opencv4/opencv2/xfeatures2d.hpp>
+
+namespace fvr
+{
 
 enum MATCHER_TYPE { BRUTEFORCE, FLANN };
 
@@ -30,4 +33,6 @@ typedef struct
 
 }INPUT;
 
-#endif // MATCHING_CONFIG_H
+}
+
+#endif // MATCHER_CONFIG_H

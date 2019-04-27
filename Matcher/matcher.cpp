@@ -1,9 +1,9 @@
- #include "matching.h"
+#include "matcher.h"
 
 namespace fvr
 {
 
-Matching::Matching(QObject *parent) : QObject(parent)
+Matcher::Matcher(QObject *parent) : QObject(parent)
 {
     this->matcherType = BRUTEFORCE;
     this->bfMatcherParams.crossCheck = true;
@@ -13,13 +13,13 @@ Matching::Matching(QObject *parent) : QObject(parent)
     this->inputDescriptors.inputLoaded = false;
 }
 
-Matching::~Matching()
+Matcher::~Matcher()
 {
     this->bfMatcher.release();
     this->flannMatcher.release();
 }
 
-void Matching::start()
+void Matcher::start()
 {
     if(this->inputDescriptors.inputLoaded)
     {
@@ -42,57 +42,57 @@ void Matching::start()
     }
 }
 
-int Matching::loadInput(const cv::Mat& descriptors1, const cv::Mat& descriptors2)
+int Matcher::loadInput(const cv::Mat& descriptors1, const cv::Mat& descriptors2)
 {
     this->inputDescriptors.descriptors1 = descriptors1;
     this->inputDescriptors.descriptors2 = descriptors2;
     this->inputDescriptors.inputLoaded = true;
 }
 
-int Matching::setMatcher(const MATCHER_TYPE type)
+int Matcher::setMatcher(const MATCHER_TYPE type)
 {
     this->matcherType = type;
 }
 
-int Matching::setBFMatcherParams(const bool crossCheck, const int normType)
+int Matcher::setBFMatcherParams(const bool crossCheck, const int normType)
 {
     this->bfMatcherParams.crossCheck = crossCheck;
     this->bfMatcherParams.normType = normType;
 }
 
-void Matching::matchBruteForce()
+void Matcher::matchBruteForce()
 {
     this->bfMatcher->match(this->inputDescriptors.descriptors1, this->inputDescriptors.descriptors2, this->matches);
 
     emit this->matchingDoneSignal(this->matches);
 }
 
-void Matching::matchFlannBased()
+void Matcher::matchFlannBased()
 {
     this->flannMatcher->match(this->inputDescriptors.descriptors1, this->inputDescriptors.descriptors2, this->matches);
 
     emit this->matchingDoneSignal(this->matches);
 }
 
-void Matching::resetBFMatcherParams()
+void Matcher::resetBFMatcherParams()
 {
     this->bfMatcherParams.normType = cv::NORM_L2;
     this->bfMatcherParams.crossCheck = true;
 }
 
-void Matching::clearResults()
+void Matcher::clearResults()
 {
     this->matches.clear();
 }
 
-void Matching::clearInput()
+void Matcher::clearInput()
 {
     this->inputDescriptors.descriptors1.release();
     this->inputDescriptors.descriptors2.release();
     this->inputDescriptors.inputLoaded = false;
 }
 
-void Matching::matcherError(const int errorCode)
+void Matcher::matcherError(const int errorCode)
 {
     emit matcherErrorSignal(errorCode);
 }

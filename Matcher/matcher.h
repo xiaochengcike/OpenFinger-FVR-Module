@@ -1,19 +1,19 @@
-#ifndef MATCHING_H
-#define MATCHING_H
+#ifndef MATCHER_H
+#define MATCHER_H
 
-#include "matching_global.h"
-#include "matching_config.h"
+#include "matcher_global.h"
+#include "matcher_config.h"
 
 namespace fvr
 {
 
-class MATCHINGSHARED_EXPORT Matching : public QObject
+class MATCHERSHARED_EXPORT Matcher : public QObject
 {
     Q_OBJECT
 
 public:
-    Matching(QObject *parent = nullptr);
-    ~Matching();
+    Matcher(QObject *parent = nullptr);
+    ~Matcher();
 
     // API
     void start();
@@ -49,4 +49,4 @@ signals:
 
 }
 
-#endif // MATCHING_H
+#endif // MATCHER_H
